@@ -153,5 +153,9 @@ export function createPoller(initialConfig) {
     stop,
     updateConfig,
     getOverheadFlights,
+    clearSeen: () => {
+      seen.clear();
+      console.log('[poller] Dedupe cache cleared');
+    },
   };
 }

@@ -73,8 +73,14 @@ async function main() {
       sonos.updateConfig(config);
     },
     saveConfig(newConfig) {
+      const oldStyle = config.announcementStyle;
       writeFileSync(CONFIG_PATH, JSON.stringify(newConfig, null, 2));
       this.reloadConfig();
+      // Style changed — clear dedupe so next poll triggers fresh announcements
+      if (newConfig.announcementStyle && newConfig.announcementStyle !== oldStyle) {
+        console.log(`[config] Style changed to "${newConfig.announcementStyle}" — clearing dedupe cache`);
+        poller.clearSeen();
+      }
     },
     getRecentFlights: () => recentFlights,
     getOverheadFlights: () => poller.getOverheadFlights(),

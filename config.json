@@ -3,9 +3,9 @@
     "lat": 41.6261,
     "lon": -87.8725
   },
-  "radiusMiles": 25,
+  "radiusMiles": 5,
   "pollIntervalSeconds": 60,
-  "announcementStyle": "atc",
+  "announcementStyle": "trivia",
   "announcementStyles": [
     "atc",
     "trivia",
