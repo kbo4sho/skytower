@@ -1,0 +1,31 @@
+{
+  "location": {
+    "lat": 41.6261,
+    "lon": -87.8725
+  },
+  "radiusMiles": 5,
+  "pollIntervalSeconds": 60,
+  "announcementStyle": "trivia",
+  "announcementStyles": [
+    "atc",
+    "trivia",
+    "dramatic",
+    "kids"
+  ],
+  "ollamaModel": "gemma3:1b",
+  "ollamaUrl": "http://localhost:11434",
+  "sonosRooms": [
+    "Office TV"
+  ],
+  "quietHours": {
+    "start": "22:00",
+    "end": "07:00"
+  },
+  "filters": {
+    "commercialOnly": false,
+    "privateJetsOnly": false,
+    "minAltitudeFt": 0,
+    "maxAltitudeFt": 999999
+  },
+  "dedupeWindowMinutes": 30
+}

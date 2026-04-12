@@ -1,0 +1,24 @@
+{
+  "name": "skytower",
+  "version": "0.1.0",
+  "description": "Self-hosted flight announcement system for Sonos speakers",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "node --test test/poller.test.js test/sonos.test.js",
+    "test:all": "node --test test/poller.test.js test/sonos.test.js test/announcer.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
+    "node-sonos": "^0.12.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

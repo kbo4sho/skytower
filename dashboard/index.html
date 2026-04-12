@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkyTower</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span class="logo-icon">✈</span>
+      <span class="logo-text">SKYTOWER</span>
+    </div>
+    <div class="status-bar">
+      <span id="status-dot" class="dot dot--idle"></span>
+      <span id="status-text">Connecting...</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel" id="overhead-panel">
+      <div class="panel-header">
+        <h2>OVERHEAD NOW</h2>
+        <span id="overhead-count" class="badge">0</span>
+        <span class="refresh-label">auto-refresh 15s</span>
+      </div>
+      <div class="table-wrap">
+        <table id="flights-table">
+          <thead>
+            <tr>
+              <th>CALLSIGN</th>
+              <th>ALT (ft)</th>
+              <th>SPEED (mph)</th>
+              <th>HEADING</th>
+              <th>COUNTRY</th>
+              <th>DIST (mi)</th>
+            </tr>
+          </thead>
+          <tbody id="flights-tbody">
+            <tr class="empty-row"><td colspan="6">No aircraft overhead</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="history-panel">
+      <div class="panel-header">
+        <h2>RECENT FLIGHTS</h2>
+        <span id="history-count" class="badge">0</span>
+      </div>
+      <div class="table-wrap">
+        <table id="history-table">
+          <thead>
+            <tr>
+              <th>CALLSIGN</th>
+              <th>ALT (ft)</th>
+              <th>SPEED (mph)</th>
+              <th>COUNTRY</th>
+              <th>SPOTTED</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody">
+            <tr class="empty-row"><td colspan="5">No flights recorded yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="side-panels">
+      <section class="panel" id="config-panel">
+        <div class="panel-header">
+          <h2>CONFIG</h2>
+          <button id="save-config-btn" class="btn btn--primary">SAVE</button>
+        </div>
+
+        <div class="config-grid">
+          <div class="config-group">
+            <label>LATITUDE</label>
+            <input type="number" id="cfg-lat" step="0.0001" />
+          </div>
+          <div class="config-group">
+            <label>LONGITUDE</label>
+            <input type="number" id="cfg-lon" step="0.0001" />
+          </div>
+          <div class="config-group">
+            <label>RADIUS (miles)</label>
+            <input type="number" id="cfg-radius" min="1" max="200" />
+          </div>
+          <div class="config-group">
+            <label>POLL INTERVAL (sec)</label>
+            <input type="number" id="cfg-interval" min="10" max="300" />
+          </div>
+          <div class="config-group">
+            <label>ANNOUNCEMENT STYLE</label>
+            <select id="cfg-style">
+              <option value="atc">ATC</option>
+              <option value="trivia">Trivia</option>
+              <option value="dramatic">Dramatic</option>
+              <option value="kids">Kids</option>
+            </select>
+          </div>
+          <div class="config-group">
+            <label>OLLAMA MODEL</label>
+            <input type="text" id="cfg-model" />
+          </div>
+          <div class="config-group">
+            <label>QUIET HOURS START</label>
+            <input type="time" id="cfg-quiet-start" />
+          </div>
+          <div class="config-group">
+            <label>QUIET HOURS END</label>
+            <input type="time" id="cfg-quiet-end" />
+          </div>
+          <div class="config-group">
+            <label>MIN ALTITUDE (ft)</label>
+            <input type="number" id="cfg-min-alt" min="0" />
+          </div>
+          <div class="config-group">
+            <label>MAX ALTITUDE (ft)</label>
+            <input type="number" id="cfg-max-alt" />
+          </div>
+          <div class="config-group config-group--check">
+            <label>
+              <input type="checkbox" id="cfg-commercial-only" />
+              Commercial flights only
+            </label>
+          </div>
+          <div class="config-group config-group--full">
+            <label>SONOS ROOMS (comma-separated)</label>
+            <input type="text" id="cfg-rooms" placeholder="Living Room, Kitchen" />
+          </div>
+        </div>
+
+        <div id="config-msg" class="msg"></div>
+      </section>
+
+      <section class="panel" id="speakers-panel">
+        <div class="panel-header">
+          <h2>SPEAKERS</h2>
+          <button id="refresh-speakers-btn" class="btn">SCAN</button>
+        </div>
+        <ul id="speakers-list" class="speakers-list">
+          <li class="empty">Scanning...</li>
+        </ul>
+
+        <div class="test-broadcast">
+          <button id="test-btn" class="btn btn--accent">▶ TEST BROADCAST</button>
+          <span id="test-msg" class="msg"></span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
