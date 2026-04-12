@@ -91,6 +91,47 @@ async function playOnSonos(ip, audioUrl) {
   }
 }
 
+// Cache discovered speakers so we don't re-discover on every announcement
+let speakerCache = null;
+let speakerCacheTime = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+async function discoverSpeakers() {
+  if (speakerCache && Date.now() - speakerCacheTime < CACHE_TTL) return speakerCache;
+
+  // Known subnet — scan :1400 for Sonos devices
+    const subnet = '192.168.68';
+  const candidates = Array.from({ length: 50 }, (_, i) => `${subnet}.${50 + i}`);
+
+  const results = await Promise.allSettled(
+    candidates.map(async (ip) => {
+      const res = await fetch(`http://${ip}:1400/xml/device_description.xml`, {
+        signal: AbortSignal.timeout(2000),
+      });
+      if (!res.ok) return null;
+      const text = await res.text();
+      const nameMatch = text.match(/<roomName>([^<]+)<\/roomName>/);
+      if (!nameMatch) return null;
+      return { ip, name: nameMatch[1] };
+    })
+  );
+
+  speakerCache = results
+    .filter(r => r.status === 'fulfilled' && r.value)
+    .map(r => r.value);
+  speakerCacheTime = Date.now();
+  console.log(`[sonos] Discovered: ${speakerCache.map(s => `${s.name}(${s.ip})`).join(', ')}`);
+  return speakerCache;
+}
+
+async function resolveRoomIPs(roomNames) {
+  const speakers = await discoverSpeakers();
+  return roomNames.flatMap(room => {
+    const match = speakers.find(s => s.name.toLowerCase() === room.toLowerCase());
+    return match ? [match] : [];
+  });
+}
+
 export function createSonos(initialConfig) {
   let config = { ...initialConfig };
   const ttsFiles = new Map();
@@ -139,16 +180,24 @@ export function createSonos(initialConfig) {
     const audioUrl = `http://192.168.68.50:${port}/tts/${filename}`;
     console.log(`[sonos] Audio URL: ${audioUrl}`);
 
-    // Kitchen speaker IPs (discovered earlier)
-    const kitchenIP = '192.168.68.53';
+    // Resolve room names from config to IPs via UPnP discovery
+    const targetRooms = config.sonosRooms && config.sonosRooms.length > 0
+      ? config.sonosRooms
+      : ['Kitchen'];
+    const targetIPs = await resolveRoomIPs(targetRooms);
+
+    if (targetIPs.length === 0) {
+      console.warn('[sonos] No speaker IPs resolved, falling back to local playback');
+      await execAsync(`afplay "${audioPath}"`);
+      return;
+    }
 
     try {
-      await playOnSonos(kitchenIP, audioUrl);
-      console.log(`[sonos] Playing Kokoro TTS on Kitchen`);
+      await Promise.all(targetIPs.map(({ name, ip }) =>
+        playOnSonos(ip, audioUrl).then(() => console.log(`[sonos] Playing on ${name} (${ip})`)).catch(err => console.error(`[sonos] Failed on ${name}:`, err.message))
+      ));
     } catch (err) {
       console.error('[sonos] Sonos UPnP play failed:', err.message);
-      // Fallback: play locally through machine audio
-      console.log('[sonos] Falling back to local playback');
       await execAsync(`afplay "${audioPath}"`);
     }
 
