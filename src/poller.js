@@ -1,6 +1,34 @@
 import EventEmitter from 'events';
 import fetch from 'node-fetch';
 
+// hexdb.io enrichment cache — avoid hitting the API for the same hex twice
+const hexCache = new Map();
+
+async function enrichFlight(flight) {
+  const hex = flight.icao24;
+  if (!hex || hex.startsWith('~')) return flight; // no enrichment for anon hex
+  if (hexCache.has(hex)) return { ...flight, ...hexCache.get(hex) };
+
+  try {
+    const res = await fetch(`https://hexdb.io/api/v1/aircraft/${hex}`, {
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!res.ok) return flight;
+    const data = await res.json();
+    if (data.error) return flight;
+    const enriched = {
+      registration: data.Registration || null,
+      manufacturer: data.Manufacturer || null,
+      aircraftType: data.Type || null,
+      operator: data.RegisteredOwners || null,
+    };
+    hexCache.set(hex, enriched);
+    return { ...flight, ...enriched };
+  } catch {
+    return flight;
+  }
+}
+
 // Degrees per mile (approximate)
 const DEG_PER_MILE = 0.0145;
 
@@ -112,7 +140,8 @@ export function createPoller(initialConfig) {
       if (lastSeen && now - lastSeen < dedupeMs) continue;
 
       seen.set(flight.icao24, now);
-      emitter.emit('newFlight', { ...flight, distance_miles: Math.round(dist * 10) / 10 });
+      const enriched = await enrichFlight({ ...flight, distance_miles: Math.round(dist * 10) / 10 });
+      emitter.emit('newFlight', enriched);
     }
 
     overheadFlights = currentOverhead;

@@ -1,17 +1,25 @@
 import fetch from 'node-fetch';
 
 const STYLE_PROMPTS = {
-  atc: (f) =>
-    `Write one ATC radio callout sentence for: callsign ${f.callsign || f.icao24}, altitude ${f.altitude_ft} feet, speed ${f.speed_mph} mph, heading ${Math.round(f.heading)} degrees. Example: "American 737, passing through flight level 280, heading 090."`,
+  atc: (f) => {
+    const id = f.operator ? `${f.operator} ${f.aircraftType || ''}`.trim() : (f.callsign || f.icao24);
+    return `Write one ATC radio callout sentence. Aircraft: ${id}, callsign ${f.callsign || f.icao24}, altitude ${f.altitude_ft} feet, heading ${Math.round(f.heading)} degrees. Example: "American Airlines 737, passing through flight level 280, heading 090."`;
+  },
 
-  trivia: (f) =>
-    `Write one or two sentences about ${f.callsign || f.icao24} flying overhead at ${f.altitude_ft} feet going ${f.speed_mph} mph. Include one interesting aviation fact.`,
+  trivia: (f) => {
+    const who = f.operator ? `a ${f.operator} ${f.aircraftType || 'aircraft'}` : (f.callsign || 'an aircraft');
+    return `Write one or two sentences about ${who} (callsign ${f.callsign || f.icao24}) flying overhead at ${f.altitude_ft} feet going ${f.speed_mph} mph. Include one interesting fact about the airline or aircraft type.`;
+  },
 
-  dramatic: (f) =>
-    `Write one dramatic cinematic sentence about a plane flying at ${f.altitude_ft} feet at ${f.speed_mph} mph overhead. Make it mysterious and evocative.`,
+  dramatic: (f) => {
+    const who = f.operator ? `a ${f.operator} ${f.aircraftType || 'aircraft'}` : 'an aircraft';
+    return `Write one dramatic cinematic sentence about ${who} flying at ${f.altitude_ft} feet overhead. Make it mysterious and evocative.`;
+  },
 
-  kids: (f) =>
-    `Write one excited sentence for a young child about ${f.callsign ? 'a ' + f.callsign + ' airplane' : 'an airplane'} flying over their house at ${f.altitude_ft} feet going ${f.speed_mph} miles per hour.`,
+  kids: (f) => {
+    const who = f.operator ? `a ${f.operator} airplane` : (f.callsign ? `a ${f.callsign} airplane` : 'an airplane');
+    return `Write one excited sentence for a young child about ${who} flying over their house at ${f.altitude_ft} feet going ${f.speed_mph} miles per hour.`;
+  },
 };
 
 export function createAnnouncer(initialConfig) {
