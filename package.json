@@ -7,8 +7,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node --test test/poller.test.js test/sonos.test.js",
-    "test:all": "node --test test/poller.test.js test/sonos.test.js test/announcer.test.js"
+    "test": "node --test test/poller.test.js test/sonos.test.js test/announcer-rubric.test.js",
+    "test:all": "node --test test/poller.test.js test/sonos.test.js test/announcer-rubric.test.js test/announcer.test.js"
   },
   "dependencies": {
     "express": "^4.18.2",
