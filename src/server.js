@@ -34,7 +34,14 @@ export function createServer(state) {
       if (!incoming || typeof incoming !== 'object') {
         return res.status(400).json({ error: 'Invalid config body' });
       }
-      state.saveConfig(incoming);
+      // Merge with existing config to prevent partial overwrites
+      const current = state.getConfig();
+      const merged = { ...current, ...incoming,
+        location: { ...current.location, ...(incoming.location || {}) },
+        filters: { ...current.filters, ...(incoming.filters || {}) },
+        quietHours: { ...current.quietHours, ...(incoming.quietHours || {}) },
+      };
+      state.saveConfig(merged);
       res.json({ ok: true });
     } catch (err) {
       res.status(500).json({ error: err.message });
