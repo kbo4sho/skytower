@@ -6,7 +6,7 @@ SkyTower is a self-hosted flight announcement system that monitors aircraft flyi
 
 ## Requirements
 
-- **Node.js 18+**
+- **Node.js 24.22.1+**
 - **[Ollama](https://ollama.ai)** running locally with a model pulled (e.g. `ollama pull llama3`)
 - **Sonos** speakers on the same local network
 - Internet access (for OpenSky Network API)
@@ -101,7 +101,7 @@ The web dashboard at `http://localhost:3000` shows:
 1. **Poller** fetches state vectors from the [OpenSky Network API](https://opensky-network.org/apidoc/) every 30 seconds (free, no auth required)
 2. Aircraft within your configured radius are filtered and deduplicated
 3. Flight data is sent to **Ollama** which generates a short spoken announcement in your chosen style
-4. The announcement is delivered to your **Sonos** speakers via the node-sonos library
+4. The announcement is delivered to your **Sonos** speakers via direct UPnP SOAP calls
 5. Quiet hours are respected — no announcements during sleep hours
 
 ---
